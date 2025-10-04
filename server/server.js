@@ -11,29 +11,7 @@ const PORT = process.env.PORT || 3001;
 
 // Configure CORS
 const corsOptions = {
-  origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-    
-    // Get allowed origins from environment variable
-    const allowedOrigins = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : ['*'];
-    
-    // If wildcard is in allowed origins, allow all
-    if (allowedOrigins.includes('*')) {
-      return callback(null, true);
-    }
-    
-    // Check if origin matches any allowed origins
-    const isAllowed = allowedOrigins.some(allowedOrigin => 
-      origin === allowedOrigin.trim()
-    );
-    
-    if (isAllowed) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
+  origin: true, // Reflect the request origin
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
@@ -43,6 +21,13 @@ const corsOptions = {
 // Middleware
 app.use(cors(corsOptions));
 app.use(express.json());
+
+// Debug middleware to log CORS headers
+app.use((req, res, next) => {
+  console.log('Request Origin:', req.get('Origin'));
+  console.log('Request Method:', req.method);
+  next();
+});
 
 // Initialize Gemini client with server-side API key
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
