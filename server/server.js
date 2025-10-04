@@ -11,9 +11,32 @@ const PORT = process.env.PORT || 3001;
 
 // Configure CORS
 const corsOptions = {
-  origin: process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : '*',
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    // Get allowed origins from environment variable
+    const allowedOrigins = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : ['*'];
+    
+    // If wildcard is in allowed origins, allow all
+    if (allowedOrigins.includes('*')) {
+      return callback(null, true);
+    }
+    
+    // Check if origin matches any allowed origins
+    const isAllowed = allowedOrigins.some(allowedOrigin => 
+      origin === allowedOrigin.trim()
+    );
+    
+    if (isAllowed) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
   optionsSuccessStatus: 204
 };
 
@@ -21,30 +44,12 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 
-// Global OPTIONS handler for preflight requests
-app.options('*', (req, res) => {
-  res.header('Access-Control-Allow-Origin', req.header('Origin') || '*');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  res.header('Access-Control-Max-Age', '86400'); // 24 hours
-  res.status(204).send();
-});
-
 // Initialize Gemini client with server-side API key
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'Backend proxy is running' });
-});
-
-// Preflight OPTIONS handlers for CORS
-app.options('/api/initialize-conversation', (req, res) => {
-  res.header('Access-Control-Allow-Origin', req.header('Origin') || '*');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  res.header('Access-Control-Max-Age', '86400'); // 24 hours
-  res.status(204).send();
 });
 
 // Initialize conversation endpoint
@@ -87,15 +92,6 @@ Keep your response brief (1-2 sentences) and welcoming.`;
     console.error('Error initializing conversation:', error);
     res.status(500).json({ error: 'Failed to initialize conversation' });
   }
-});
-
-// Preflight OPTIONS handlers for CORS
-app.options('/api/generate-response', (req, res) => {
-  res.header('Access-Control-Allow-Origin', req.header('Origin') || '*');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  res.header('Access-Control-Max-Age', '86400'); // 24 hours
-  res.status(204).send();
 });
 
 // Generate conversation response endpoint
@@ -167,15 +163,6 @@ Respond as the conversation partner:`;
     console.error('Error generating conversation response:', error);
     res.status(500).json({ error: 'Failed to generate AI response' });
   }
-});
-
-// Preflight OPTIONS handlers for CORS
-app.options('/api/generate-feedback', (req, res) => {
-  res.header('Access-Control-Allow-Origin', req.header('Origin') || '*');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  res.header('Access-Control-Max-Age', '86400'); // 24 hours
-  res.status(204).send();
 });
 
 // Generate feedback report endpoint
