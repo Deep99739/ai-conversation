@@ -19,12 +19,30 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 
+// Global OPTIONS handler for preflight requests
+app.options('*', (req, res) => {
+  res.header('Access-Control-Allow-Origin', req.header('Origin') || '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.header('Access-Control-Max-Age', '86400'); // 24 hours
+  res.status(204).send();
+});
+
 // Initialize Gemini client with server-side API key
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'Backend proxy is running' });
+});
+
+// Preflight OPTIONS handlers for CORS
+app.options('/api/initialize-conversation', (req, res) => {
+  res.header('Access-Control-Allow-Origin', req.header('Origin') || '*');
+  res.header('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type');
+  res.header('Access-Control-Max-Age', '86400'); // 24 hours
+  res.status(204).send();
 });
 
 // Initialize conversation endpoint
@@ -67,6 +85,15 @@ Keep your response brief (1-2 sentences) and welcoming.`;
     console.error('Error initializing conversation:', error);
     res.status(500).json({ error: 'Failed to initialize conversation' });
   }
+});
+
+// Preflight OPTIONS handlers for CORS
+app.options('/api/generate-response', (req, res) => {
+  res.header('Access-Control-Allow-Origin', req.header('Origin') || '*');
+  res.header('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type');
+  res.header('Access-Control-Max-Age', '86400'); // 24 hours
+  res.status(204).send();
 });
 
 // Generate conversation response endpoint
@@ -138,6 +165,15 @@ Respond as the conversation partner:`;
     console.error('Error generating conversation response:', error);
     res.status(500).json({ error: 'Failed to generate AI response' });
   }
+});
+
+// Preflight OPTIONS handlers for CORS
+app.options('/api/generate-feedback', (req, res) => {
+  res.header('Access-Control-Allow-Origin', req.header('Origin') || '*');
+  res.header('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type');
+  res.header('Access-Control-Max-Age', '86400'); // 24 hours
+  res.status(204).send();
 });
 
 // Generate feedback report endpoint
