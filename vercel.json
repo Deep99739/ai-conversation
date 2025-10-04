@@ -1,0 +1,23 @@
+{
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": ["dist/**"]
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/dist/index.html"
+    }
+  ],
+  "engines": {
+    "node": "20.x"
+  },
+  "buildCommand": "./scripts/build.sh",
+  "outputDirectory": "dist",
+  "framework": "vite"
+}
