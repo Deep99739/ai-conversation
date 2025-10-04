@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: english-practice-api
+    env: node
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: ALLOWED_ORIGINS
+        value: https://english-practice-platform.vercel.app,http://localhost:5173
