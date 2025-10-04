@@ -8,4 +8,4 @@ services:
       - key: GEMINI_API_KEY
         sync: false
       - key: ALLOWED_ORIGINS
-        value: https://english-practice-platform.vercel.app,http://localhost:5173,https://conversationskillsaikprj.vercel.app,https://conversationskillsaikprj-*.vercel.app
+        value: https://english-practice-platform.vercel.app,http://localhost:5173,https://conversationskillsaikprj.vercel.app,https://conversationskillsaikprj-5a9jp10ot.vercel.app
