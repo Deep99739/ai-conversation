@@ -11,7 +11,34 @@ const PORT = process.env.PORT || 3001;
 
 // Configure CORS
 const corsOptions = {
-  origin: process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : '*',
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    // Get allowed origins from environment variable
+    const allowedOrigins = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : ['*'];
+    
+    // If wildcard is in allowed origins, allow all
+    if (allowedOrigins.includes('*')) {
+      return callback(null, true);
+    }
+    
+    // Check if origin matches any allowed origins (including wildcards)
+    const isAllowed = allowedOrigins.some(allowedOrigin => {
+      // Handle wildcard domains
+      if (allowedOrigin.includes('*')) {
+        const regex = new RegExp(`^${allowedOrigin.replace(/\./g, '\\.').replace(/\*/g, '.*')}$`);
+        return regex.test(origin);
+      }
+      return origin === allowedOrigin.trim();
+    });
+    
+    if (isAllowed) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   optionsSuccessStatus: 200
 };
 
