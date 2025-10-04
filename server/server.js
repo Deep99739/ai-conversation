@@ -12,7 +12,9 @@ const PORT = process.env.PORT || 3001;
 // Configure CORS
 const corsOptions = {
   origin: process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : '*',
-  optionsSuccessStatus: 200
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  optionsSuccessStatus: 204
 };
 
 // Middleware
@@ -39,8 +41,8 @@ app.get('/api/health', (req, res) => {
 // Preflight OPTIONS handlers for CORS
 app.options('/api/initialize-conversation', (req, res) => {
   res.header('Access-Control-Allow-Origin', req.header('Origin') || '*');
-  res.header('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   res.header('Access-Control-Max-Age', '86400'); // 24 hours
   res.status(204).send();
 });
@@ -90,8 +92,8 @@ Keep your response brief (1-2 sentences) and welcoming.`;
 // Preflight OPTIONS handlers for CORS
 app.options('/api/generate-response', (req, res) => {
   res.header('Access-Control-Allow-Origin', req.header('Origin') || '*');
-  res.header('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   res.header('Access-Control-Max-Age', '86400'); // 24 hours
   res.status(204).send();
 });
@@ -170,8 +172,8 @@ Respond as the conversation partner:`;
 // Preflight OPTIONS handlers for CORS
 app.options('/api/generate-feedback', (req, res) => {
   res.header('Access-Control-Allow-Origin', req.header('Origin') || '*');
-  res.header('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   res.header('Access-Control-Max-Age', '86400'); // 24 hours
   res.status(204).send();
 });
